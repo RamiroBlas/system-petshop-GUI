@@ -1,6 +1,4 @@
 
-O
-src/service/ModificarMarca.java,8\c\8cbd0bf13296b96a4a88ca5cbc9280ed8a89f4df
 Q
 !src/service/PedirProveedores.java,9\9\99b3f65ab9d506da2d3e8dee449ae099c68e1b90
 P

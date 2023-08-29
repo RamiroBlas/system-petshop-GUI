@@ -1,6 +1,7 @@
 package service;
 
 import config.ConnectionMysql;
+import entity.Productos;
 import repository.MysqlConnectionRepository;
 
 import java.awt.event.ActionEvent;
@@ -21,7 +22,8 @@ public class ConsultarMarca extends JFrame implements ActionListener {
     public static JTextField txtTipoPerro, txtPrecio, txtPesoKg, txtTipoAlimento;
     private JButton btnCerrar;
     public JComboBox cmbMarca;
-
+    MysqlConnectionRepository connectiondb = new MysqlConnectionRepository();
+    Productos productos = new Productos();
 
     public ConsultarMarca() {
         setTitle("Consultar Marca");
@@ -54,7 +56,8 @@ public class ConsultarMarca extends JFrame implements ActionListener {
 
         cmbMarca = new JComboBox();
         cmbMarca.addActionListener(this);
-        cmbMarca.setModel(new DefaultComboBoxModel(new String[]{"Ricocan", "Dog-Chow", "Pedigree", "allkjoy", "Canbo"}));
+        connectiondb.rellenarComboBox("productos", "marca", cmbMarca);
+        //cmbMarca.setModel(new DefaultComboBoxModel(new String[]{"Ricocan", "Dog-Chow", "Pedigree", "allkjoy", "Canbo"}));
         cmbMarca.setBounds(110, 27, 198, 22);
         contentPane.add(cmbMarca);
 
@@ -106,18 +109,21 @@ public class ConsultarMarca extends JFrame implements ActionListener {
 
         int indiceMarca = cmbMarca.getSelectedIndex();
 
-       if (indiceMarca >= 0 && indiceMarca < Tienda.marcas.length) {
+       if (indiceMarca >= 0 && indiceMarca < cmbMarca.getItemCount()) {
 
-            actualizarValores(Tienda.precios[indiceMarca], Tienda.pesosKg[indiceMarca], Tienda.tiposPerros[indiceMarca], Tienda.tiposAlimentos[indiceMarca]);
+           int codigo = indiceMarca + 1;
+
+            productos = connectiondb.consultarMarca("productos", codigo);
 
         }
+       mostrarValores(productos);
     }
 
-    private void actualizarValores(double precio, double peso, String tipoPerro, String tipoAlimento) {
-        txtPrecio.setText(String.valueOf(precio));
-        txtPesoKg.setText(String.valueOf(peso));
-        txtTipoPerro.setText(String.valueOf(tipoPerro));
-        txtTipoAlimento.setText(String.valueOf(tipoAlimento));
+    private void mostrarValores(Productos productos) {
+        txtPrecio.setText(String.valueOf(productos.getPrecio()));
+        txtPesoKg.setText(String.valueOf(productos.getPeso()));
+        txtTipoPerro.setText(productos.getTipoPerro());
+        txtTipoAlimento.setText(productos.getTipoAlimento());
     }
 
     public void actionperformedCerrar(ActionEvent e) {

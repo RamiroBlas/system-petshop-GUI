@@ -1,5 +1,8 @@
 package service;
 
+import entity.Productos;
+import repository.MysqlConnectionRepository;
+
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
@@ -19,6 +22,8 @@ public class ModificarMarca extends JFrame implements ActionListener {
     public static JTextField txtPrecio, txtPesoKg, txtTipoPerro, txtTipoAlimento;
     public JComboBox cmbMarca;
     private JButton btnGrabar, btnCerrar;
+    MysqlConnectionRepository connectiondb = new MysqlConnectionRepository();
+    Productos productos = new Productos();
 
     public ModificarMarca() {
 
@@ -72,7 +77,7 @@ public class ModificarMarca extends JFrame implements ActionListener {
 
         cmbMarca = new JComboBox();
         cmbMarca.addActionListener(this);
-        cmbMarca.setModel(new DefaultComboBoxModel(new String[]{"Ricocan", "DogChow", "Pedigree", "allkjoy", "Canbo"}));
+        connectiondb.rellenarComboBox("productos", "marca", cmbMarca);
         cmbMarca.setBounds(120, 7, 180, 22);
         contentPane.add(cmbMarca);
 
@@ -104,45 +109,35 @@ public class ModificarMarca extends JFrame implements ActionListener {
 
         int indiceMarca = cmbMarca.getSelectedIndex();
 
-        if (indiceMarca >= 0 && indiceMarca < 5) {
-
-            actualizarValores(Tienda.precios[indiceMarca], Tienda.pesosKg[indiceMarca], Tienda.tiposPerros[indiceMarca], Tienda.tiposAlimentos[indiceMarca]);
-
+        if (indiceMarca >= 0 && indiceMarca < cmbMarca.getItemCount()) {
+            int codigo = indiceMarca + 1;
+            productos = connectiondb.consultarMarca("productos", codigo);
+            mostrarValores(productos);
         }
-
     }
 
-    private void actualizarValores(double precio, double peso, String tipoPerro, String tipoAlimento) {
-        txtPrecio.setText(String.valueOf(precio));
-        txtPesoKg.setText(String.valueOf(peso));
-        txtTipoPerro.setText(String.valueOf(tipoPerro));
-        txtTipoAlimento.setText(String.valueOf(tipoAlimento));
+    private void mostrarValores(Productos productos) {
+        txtPrecio.setText(String.valueOf(productos.getPrecio()));
+        txtPesoKg.setText(String.valueOf(productos.getPeso()));
+        txtTipoPerro.setText(productos.getTipoPerro());
+        txtTipoAlimento.setText(productos.getTipoAlimento());
     }
 
     public void actionPerformedGrabar(ActionEvent e) {
         int indiceMarca = cmbMarca.getSelectedIndex();
 
-        Tienda tienda = new Tienda();
-        tienda.setVisible(true);
-        this.setVisible(false);
+        if (indiceMarca >= 0 && indiceMarca < cmbMarca.getItemCount()) {
+            Tienda tienda = new Tienda();
+            tienda.setVisible(true);
+            this.setVisible(false);
 
-        double precio = Double.parseDouble(txtPrecio.getText());
-        double pesoKg = Double.parseDouble(txtPesoKg.getText());
-        String tipoPerro = txtTipoPerro.getText();
-        String tipoAlimento = txtTipoAlimento.getText();
+            int codigo = indiceMarca + 1;
+            double newPrecio = Double.parseDouble(txtPrecio.getText());
+            double newPesoKg = Double.parseDouble(txtPesoKg.getText());
+            String newTipoPerro = txtTipoPerro.getText();
+            String newTipoAlimento = txtTipoAlimento.getText();
 
-        actualizarTienda(indiceMarca, precio, pesoKg, tipoPerro, tipoAlimento);
-
-    }
-
-    private void actualizarTienda(int indice, double precio, double pesoKg, String tipoPerro, String tipoAlimento) {
-
-        if (indice >= 0 && indice < 5) {
-
-            Tienda.precios[indice] = precio;
-            Tienda.pesosKg[indice] = pesoKg;
-            Tienda.tiposPerros[indice] = tipoPerro;
-            Tienda.tiposAlimentos[indice] = tipoAlimento;
+            connectiondb.modificarMarca("productos", codigo, newPrecio, newPesoKg, newTipoPerro, newTipoAlimento);
         }
     }
 
